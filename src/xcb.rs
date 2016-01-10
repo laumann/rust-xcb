@@ -67,20 +67,21 @@ pub mod ffi {
     //pub mod xf86vidmode; Same with this one...
     pub mod xfixes;
     pub mod xinerama;
-    pub mod xinput;
+
+    #[cfg(feature = "xinput")] pub mod xinput;
     //pub mod xkb;
     pub mod xprint;
 
-    #[cfg(enable_xselinux)]
-    pub mod xselinux;
-    pub mod xtest;
-    pub mod xv;
-    pub mod xvmc;
+    #[cfg(enable_xselinux)] pub mod xselinux;
+
+    #[cfg(feature = "xtest")] pub mod xtest;
+    #[cfg(feature = "xv")] pub mod xv;
+    #[cfg(feature = "xvmc")] pub mod xvmc;
 }
 
 pub mod base;
-#[macro_use]
-pub mod macros;
+
+#[macro_use] pub mod macros;
 
 pub mod xproto;
 
@@ -91,6 +92,9 @@ pub mod composite;
 pub mod xfixes;
 pub mod render;
 pub mod shape;
+
+#[cfg(feature = "randr")] pub mod randr;
+
 /*
 pub mod damage;
 pub mod dpms;
@@ -98,7 +102,7 @@ pub mod dri2;
 //pub mod ge; not sure about this one...
 
 pub mod glx;
-pub mod randr;
+
 pub mod record;
 pub mod screensaver;
 pub mod shm;

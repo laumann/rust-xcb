@@ -9,4 +9,12 @@ name = "xcb"
 path = "src/xcb.rs"
 
 [dependencies]
-libc = "0.2"
+libc = "*"
+
+[features]
+
+xinput = []
+xtest = []
+xv = []
+xvmc = []
+randr = []
