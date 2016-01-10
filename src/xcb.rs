@@ -54,7 +54,7 @@ pub mod ffi {
     //pub mod ge; not sure about this one...
 
     pub mod glx;
-    pub mod randr;
+    #[cfg(feature = "randr")] pub mod randr;
     pub mod record;
     pub mod render;
     pub mod screensaver;
@@ -95,6 +95,10 @@ pub mod shape;
 
 #[cfg(feature = "randr")] pub mod randr;
 
+#[cfg(feature = "xtest")] pub mod xtest;
+#[cfg(feature = "xv")] pub mod xv;
+#[cfg(feature = "xvmc")] pub mod xvmc;
+
 /*
 pub mod damage;
 pub mod dpms;
@@ -117,7 +121,5 @@ pub mod xprint;
 
 #[cfg(enable_xselinux)]
 pub mod xselinux;
-pub mod xtest;
-pub mod xv;
-pub mod xvmc;
+
 */
