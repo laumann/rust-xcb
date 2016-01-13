@@ -1,6 +1,7 @@
 extern crate xcb;
 
 use xcb::base::*;
+use xcb::xproto;
 use xcb::randr;
 
 const RANDR_VERSION_MAJOR: u32 = 1;
@@ -17,18 +18,34 @@ fn main() {
                 println!("Unsupported RandR version: {}.{}", ver_reply.major_version(), ver_reply.minor_version());
                 return;
             }
+            println!("Using RandR {}.{}", ver_reply.major_version(), ver_reply.minor_version());
         }
         Err(_e) => panic!("Generic error")
     }
 
-    let mut setup = conn.get_setup();
-    let screen = setup.roots().nth(screen_num as usize).unwrap();
+    let mut screen = conn.get_setup().roots().nth(screen_num as usize).unwrap();
     let window = conn.generate_id();
+    xproto::CreateWindow(&conn, 0, window, screen.root(), 0, 0, 1, 1, 0, 0, 0, &[]);
 
-    match randr::GetScreenResourcesCurrent(&conn, window).get_reply() {
+    //conn.flush();
+
+    let crtcs = match randr::GetScreenResourcesCurrent(&conn, window).get_reply() {
         Ok(mut res_reply) => {
-            println!("Timestamp: {}", res_reply.timestamp());
+            println!("Timestamp:        {}", res_reply.timestamp());
+            res_reply.crtcs()
         }
         Err(_e) => panic!("Generic error again!")
+    };
+
+    println!("crtcs={:?}", crtcs);
+    let mut crtc_gamma_cookies = Vec::with_capacity(crtcs.len());
+    for crtc in crtcs {
+        match randr::GetCrtcGammaSize(&conn, crtc).get_reply() {
+            Ok(mut gamma_size_reply) => {
+                println!("GetCrtcGammaSize({})={}", crtc, gamma_size_reply.size());
+                //crtc_gamma_cookies.push(gamma_size_reply);
+            }
+            Err(_e) => panic!("RandR Get CRTC Gamma Size")
+        }
     }
 }
