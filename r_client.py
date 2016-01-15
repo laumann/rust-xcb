@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 from xml.etree.cElementTree import *
 from os.path import basename
 from functools import reduce
@@ -1177,6 +1177,7 @@ def _c_complex(self):
         maxtypelen = max(maxtypelen, length)
 
     def _c_complex_field(self, field, comma=','):
+        nonlocal is_copy_eligible
         if field.c_field_type in _types_not_copy_eligible:
             is_copy_eligible = False
         if (field.type.fixed_size() or
@@ -1223,12 +1224,13 @@ def _c_complex(self):
 
     _h('}\n')
 
-    if is_copy_eligible:
+    if is_copy_eligible and not (self.c_type in _types_not_copy_eligible):
         _h('impl Copy for %s {}', self.c_type)
         _h('impl Clone for %s {', self.c_type)
         _h('    fn clone(&self) -> %s { *self }', self.c_type)
         _h('}')
-    else:
+
+    if not is_copy_eligible:
         _types_not_copy_eligible.append(self.c_type)
 
     for sta in structsToAdd:
@@ -1547,7 +1549,7 @@ def _c_request_helper(self, name, rust_cookie_type, cookie_type, void, regular, 
     count = len(call_params)
     comma = ',' if count else ');'
     _r('    let cookie = %s(c.get_raw_conn()%s', func_name, comma)
-    call_params.sort(lambda x,y: cmp(x[0] , y[0]))
+    call_params.sort(key=lambda x: x[0])
     for idx, c in call_params:
         count = count - 1
         comma = ',' if count else ');'
